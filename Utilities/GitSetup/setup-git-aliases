@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Alias to checkout a pull request by its numerical id
+git config --global --add alias.pr '!f() { git fetch -fu ${2:-upstream} refs/pull/$1/head:pr/$1 && git checkout pr/$1; }; f'
+# Remove previously checked out pull request
+git config --global --add alias.pr-clean '!git checkout master ; git for-each-ref refs/heads/pr/* --format="%(refname)" | while read ref ; do branch=${ref#refs/heads/} ; git branch -D $branch ; done'
+
+# Alias to push the current topic branch to GitHub
+git config alias.review-push "!bash Utilities/GitSetup/git-review-push"
+
+git config alias.gerrit-push \
+  "!bash -c 'echo \\\"git gerrit-push\\\" is deprecated. Please use \\\"git review-push\\\" instead.'"

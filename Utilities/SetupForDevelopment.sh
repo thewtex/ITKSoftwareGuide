@@ -20,11 +20,28 @@
 cd "${BASH_SOURCE%/*}/.." &&
 Utilities/GitSetup/setup-user && echo &&
 Utilities/GitSetup/setup-hooks && echo &&
-Utilities/GitSetup/SetupGitAliases.sh && echo &&
-(Utilities/GitSetup/setup-gerrit ||
- echo 'Failed to setup Gerrit.  Run this again to retry.') && echo &&
+Utilities/GitSetup/setup-git-aliases && echo &&
+(Utilities/GitSetup/setup-upstream ||
+ echo 'Failed to setup origin.  Run this again to retry.') && echo &&
+(Utilities/GitSetup/setup-github ||
+ echo 'Failed to setup GitHub.  Run this again to retry.') && echo &&
 Utilities/GitSetup/tips
 
 # Rebase master by default
 git config rebase.stat true
 git config branch.master.rebase true
+
+# Disable old Gerrit hooks
+hook=$(git config --get hooks.GerritId) &&
+if "$hook"; then
+	echo '
+ITK has migrated from Gerrit to GitHub for code reviews.
+
+Disabling the GerritId hook that adds a "Change-Id" footer to commit
+messages for interaction with Gerrit.' &&
+	git config hooks.GerritId false
+fi
+
+# Record the version of this setup so Scripts/pre-commit can check it.
+SetupForDevelopment_VERSION=1
+git config hooks.SetupForDevelopment ${SetupForDevelopment_VERSION}
